@@ -28,6 +28,8 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+const responseMetadataRunning = `{"status": "running"}`
+
 func TestInfraProvisioner_Find(t *testing.T) {
 	type fields struct {
 		infraProviderConfigStore   *mockInfraProviderConfigStore
@@ -53,9 +55,12 @@ func TestInfraProvisioner_Find(t *testing.T) {
 			fields: fields{
 				infraProviderConfigStore: func() *mockInfraProviderConfigStore {
 					store := &mockInfraProviderConfigStore{}
-					store.On("Find", mock.Anything, mock.Anything, mock.Anything).Return(&types.InfraProviderConfig{
-						Type: enum.InfraProviderTypeDocker,
-					}, nil)
+					store.On("Find", mock.Anything, mock.Anything, mock.Anything).Return(
+						&types.InfraProviderConfig{
+							Type: enum.InfraProviderTypeDocker,
+						},
+						nil,
+					)
 					return store
 				}(),
 				providerFactory: func() *mockProviderFactory {
@@ -63,17 +68,26 @@ func TestInfraProvisioner_Find(t *testing.T) {
 					provider := &mockInfraProvider{}
 					provider.On("ProvisioningType").Return(enum.InfraProvisioningTypeNew)
 					status := enum.InfraStatus("running")
-					provider.On("FindInfraStatus", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					provider.On(
+						"FindInfraStatus",
+						mock.Anything,
+						mock.Anything,
+						mock.Anything,
+						mock.Anything,
+					).
 						Return(&status, nil)
 					factory.On("GetInfraProvider", mock.Anything).Return(provider, nil)
 					return factory
 				}(),
 				infraProvisionedStore: func() *mockInfraProvisionedStore {
 					store := &mockInfraProvisionedStore{}
-					responseMetadata := `{"status": "running"}`
-					store.On("FindLatestByGitspaceInstanceID", mock.Anything, mock.Anything).Return(&types.InfraProvisioned{
-						ResponseMetadata: &responseMetadata,
-					}, nil)
+					responseMetadata := responseMetadataRunning
+					store.On("FindLatestByGitspaceInstanceID", mock.Anything, mock.Anything).Return(
+						&types.InfraProvisioned{
+							ResponseMetadata: &responseMetadata,
+						},
+						nil,
+					)
 					return store
 				}(),
 				infraProviderTemplateStore: &mockInfraProviderTemplateStore{},
@@ -97,16 +111,26 @@ func TestInfraProvisioner_Find(t *testing.T) {
 			fields: fields{
 				infraProviderConfigStore: func() *mockInfraProviderConfigStore {
 					store := &mockInfraProviderConfigStore{}
-					store.On("Find", mock.Anything, mock.Anything, mock.Anything).Return(&types.InfraProviderConfig{
-						Type: enum.InfraProviderTypeDocker,
-					}, nil)
+					store.On("Find", mock.Anything, mock.Anything, mock.Anything).Return(
+						&types.InfraProviderConfig{
+							Type: enum.InfraProviderTypeDocker,
+						},
+						nil,
+					)
 					return store
 				}(),
 				providerFactory: func() *mockProviderFactory {
 					factory := &mockProviderFactory{}
 					provider := &mockInfraProvider{}
 					provider.On("ProvisioningType").Return(enum.InfraProvisioningTypeExisting)
-					provider.On("Find", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					provider.On(
+						"Find",
+						mock.Anything,
+						mock.Anything,
+						mock.Anything,
+						mock.Anything,
+						mock.Anything,
+					).
 						Return(&types.Infrastructure{Status: "running"}, nil)
 					provider.On("TemplateParams").Return([]types.InfraProviderParameterSchema{})
 					factory.On("GetInfraProvider", mock.Anything).Return(provider, nil)
@@ -157,16 +181,26 @@ func TestInfraProvisioner_Find(t *testing.T) {
 			fields: fields{
 				infraProviderConfigStore: func() *mockInfraProviderConfigStore {
 					store := &mockInfraProviderConfigStore{}
-					store.On("Find", mock.Anything, mock.Anything, mock.Anything).Return(&types.InfraProviderConfig{
-						Type: enum.InfraProviderTypeDocker,
-					}, nil)
+					store.On("Find", mock.Anything, mock.Anything, mock.Anything).Return(
+						&types.InfraProviderConfig{
+							Type: enum.InfraProviderTypeDocker,
+						},
+						nil,
+					)
 					return store
 				}(),
 				providerFactory: func() *mockProviderFactory {
 					factory := &mockProviderFactory{}
 					provider := &mockInfraProvider{}
 					provider.On("ProvisioningType").Return(enum.InfraProvisioningTypeExisting)
-					provider.On("Find", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					provider.On(
+						"Find",
+						mock.Anything,
+						mock.Anything,
+						mock.Anything,
+						mock.Anything,
+						mock.Anything,
+					).
 						Return(nil, errors.New("some error"))
 					provider.On("TemplateParams").Return([]types.InfraProviderParameterSchema{})
 					factory.On("GetInfraProvider", mock.Anything).Return(provider, nil)
@@ -191,26 +225,38 @@ func TestInfraProvisioner_Find(t *testing.T) {
 			fields: fields{
 				infraProviderConfigStore: func() *mockInfraProviderConfigStore {
 					store := &mockInfraProviderConfigStore{}
-					store.On("Find", mock.Anything, mock.Anything, mock.Anything).Return(&types.InfraProviderConfig{
-						Type: enum.InfraProviderTypeDocker,
-					}, nil)
+					store.On("Find", mock.Anything, mock.Anything, mock.Anything).Return(
+						&types.InfraProviderConfig{
+							Type: enum.InfraProviderTypeDocker,
+						},
+						nil,
+					)
 					return store
 				}(),
 				providerFactory: func() *mockProviderFactory {
 					factory := &mockProviderFactory{}
 					provider := &mockInfraProvider{}
 					provider.On("ProvisioningType").Return(enum.InfraProvisioningTypeNew)
-					provider.On("FindInfraStatus", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					provider.On(
+						"FindInfraStatus",
+						mock.Anything,
+						mock.Anything,
+						mock.Anything,
+						mock.Anything,
+					).
 						Return(nil, errors.New("some error"))
 					factory.On("GetInfraProvider", mock.Anything).Return(provider, nil)
 					return factory
 				}(),
 				infraProvisionedStore: func() *mockInfraProvisionedStore {
 					store := &mockInfraProvisionedStore{}
-					responseMetadata := `{"status": "running"}`
-					store.On("FindLatestByGitspaceInstanceID", mock.Anything, mock.Anything).Return(&types.InfraProvisioned{
-						ResponseMetadata: &responseMetadata,
-					}, nil)
+					responseMetadata := responseMetadataRunning
+					store.On("FindLatestByGitspaceInstanceID", mock.Anything, mock.Anything).Return(
+						&types.InfraProvisioned{
+							ResponseMetadata: &responseMetadata,
+						},
+						nil,
+					)
 					return store
 				}(),
 				infraProviderTemplateStore: &mockInfraProviderTemplateStore{},
@@ -231,14 +277,20 @@ func TestInfraProvisioner_Find(t *testing.T) {
 			fields: fields{
 				infraProviderConfigStore: func() *mockInfraProviderConfigStore {
 					store := &mockInfraProviderConfigStore{}
-					store.On("Find", mock.Anything, mock.Anything, mock.Anything).Return(&types.InfraProviderConfig{
-						Type: enum.InfraProviderTypeDocker,
-					}, nil)
+					store.On("Find", mock.Anything, mock.Anything, mock.Anything).Return(
+						&types.InfraProviderConfig{
+							Type: enum.InfraProviderTypeDocker,
+						},
+						nil,
+					)
 					return store
 				}(),
 				providerFactory: func() *mockProviderFactory {
 					factory := &mockProviderFactory{}
-					factory.On("GetInfraProvider", mock.Anything).Return(nil, errors.New("some error"))
+					factory.On("GetInfraProvider", mock.Anything).Return(
+						nil,
+						errors.New("some error"),
+					)
 					return factory
 				}(),
 				infraProvisionedStore:      &mockInfraProvisionedStore{},
@@ -353,7 +405,7 @@ func Test_deserializeInfraProviderParams(t *testing.T) {
 
 func Test_getGitspaceScheme(t *testing.T) {
 	type args struct {
-		ideType                  enum.IDEType
+		ideType                    enum.IDEType
 		gitspaceSchemeFromMetadata string
 	}
 	tests := []struct {
@@ -365,7 +417,7 @@ func Test_getGitspaceScheme(t *testing.T) {
 		{
 			name: "vscode web",
 			args: args{
-				ideType:                  enum.IDETypeVSCodeWeb,
+				ideType:                    enum.IDETypeVSCodeWeb,
 				gitspaceSchemeFromMetadata: "https",
 			},
 			want:    "https",
@@ -404,17 +456,32 @@ type mockInfraProviderConfigStore struct {
 	mock.Mock
 }
 
-func (m *mockInfraProviderConfigStore) FindByType(ctx context.Context, spaceID int64, infraType enum.InfraProviderType, includeDeleted bool) (*types.InfraProviderConfig, error) {
+func (m *mockInfraProviderConfigStore) FindByType(
+	ctx context.Context,
+	spaceID int64,
+	infraType enum.InfraProviderType,
+	includeDeleted bool,
+) (*types.InfraProviderConfig, error) {
 	args := m.Called(ctx, spaceID, infraType, includeDeleted)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
 	return args.Get(0).(*types.InfraProviderConfig), args.Error(1)
 }
 
-func (m *mockInfraProviderConfigStore) Update(ctx context.Context, infraProviderConfig *types.InfraProviderConfig) error {
+func (m *mockInfraProviderConfigStore) Update(
+	ctx context.Context,
+	infraProviderConfig *types.InfraProviderConfig,
+) error {
 	args := m.Called(ctx, infraProviderConfig)
 	return args.Error(0)
 }
 
-func (m *mockInfraProviderConfigStore) Find(ctx context.Context, id int64, includeDeleted bool) (*types.InfraProviderConfig, error) {
+func (m *mockInfraProviderConfigStore) Find(
+	ctx context.Context,
+	id int64,
+	includeDeleted bool,
+) (*types.InfraProviderConfig, error) {
 	args := m.Called(ctx, id, includeDeleted)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -422,17 +489,33 @@ func (m *mockInfraProviderConfigStore) Find(ctx context.Context, id int64, inclu
 	return args.Get(0).(*types.InfraProviderConfig), args.Error(1)
 }
 
-func (m *mockInfraProviderConfigStore) List(ctx context.Context, filter *types.InfraProviderConfigFilter) ([]*types.InfraProviderConfig, error) {
+func (m *mockInfraProviderConfigStore) List(
+	ctx context.Context,
+	filter *types.InfraProviderConfigFilter,
+) ([]*types.InfraProviderConfig, error) {
 	args := m.Called(ctx, filter)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
 	return args.Get(0).([]*types.InfraProviderConfig), args.Error(1)
 }
 
-func (m *mockInfraProviderConfigStore) FindByIdentifier(ctx context.Context, spaceID int64, identifier string) (*types.InfraProviderConfig, error) {
+func (m *mockInfraProviderConfigStore) FindByIdentifier(
+	ctx context.Context,
+	spaceID int64,
+	identifier string,
+) (*types.InfraProviderConfig, error) {
 	args := m.Called(ctx, spaceID, identifier)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
 	return args.Get(0).(*types.InfraProviderConfig), args.Error(1)
 }
 
-func (m *mockInfraProviderConfigStore) Create(ctx context.Context, infraProviderConfig *types.InfraProviderConfig) error {
+func (m *mockInfraProviderConfigStore) Create(
+	ctx context.Context,
+	infraProviderConfig *types.InfraProviderConfig,
+) error {
 	args := m.Called(ctx, infraProviderConfig)
 	return args.Error(0)
 }
@@ -446,27 +529,51 @@ type mockInfraProviderResourceStore struct {
 	mock.Mock
 }
 
-func (m *mockInfraProviderResourceStore) List(ctx context.Context, infraProviderConfigID int64, filter types.ListQueryFilter) ([]*types.InfraProviderResource, error) {
+func (m *mockInfraProviderResourceStore) List(
+	ctx context.Context,
+	infraProviderConfigID int64,
+	filter types.ListQueryFilter,
+) ([]*types.InfraProviderResource, error) {
 	args := m.Called(ctx, infraProviderConfigID, filter)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
 	return args.Get(0).([]*types.InfraProviderResource), args.Error(1)
 }
 
 func (m *mockInfraProviderResourceStore) Find(ctx context.Context, id int64) (*types.InfraProviderResource, error) {
 	args := m.Called(ctx, id)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
 	return args.Get(0).(*types.InfraProviderResource), args.Error(1)
 }
 
-func (m *mockInfraProviderResourceStore) FindByConfigAndIdentifier(ctx context.Context, spaceID int64, infraProviderConfigID int64, identifier string) (*types.InfraProviderResource, error) {
+func (m *mockInfraProviderResourceStore) FindByConfigAndIdentifier(
+	ctx context.Context,
+	spaceID int64,
+	infraProviderConfigID int64,
+	identifier string,
+) (*types.InfraProviderResource, error) {
 	args := m.Called(ctx, spaceID, infraProviderConfigID, identifier)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
 	return args.Get(0).(*types.InfraProviderResource), args.Error(1)
 }
 
-func (m *mockInfraProviderResourceStore) Create(ctx context.Context, infraProviderResource *types.InfraProviderResource) error {
+func (m *mockInfraProviderResourceStore) Create(
+	ctx context.Context,
+	infraProviderResource *types.InfraProviderResource,
+) error {
 	args := m.Called(ctx, infraProviderResource)
 	return args.Error(0)
 }
 
-func (m *mockInfraProviderResourceStore) Update(ctx context.Context, infraProviderResource *types.InfraProviderResource) error {
+func (m *mockInfraProviderResourceStore) Update(
+	ctx context.Context,
+	infraProviderResource *types.InfraProviderResource,
+) error {
 	args := m.Called(ctx, infraProviderResource)
 	return args.Error(0)
 }
@@ -480,7 +587,11 @@ type mockInfraProviderTemplateStore struct {
 	mock.Mock
 }
 
-func (m *mockInfraProviderTemplateStore) FindByIdentifier(ctx context.Context, spaceID int64, identifier string) (*types.InfraProviderTemplate, error) {
+func (m *mockInfraProviderTemplateStore) FindByIdentifier(
+	ctx context.Context,
+	spaceID int64,
+	identifier string,
+) (*types.InfraProviderTemplate, error) {
 	args := m.Called(ctx, spaceID, identifier)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -490,15 +601,24 @@ func (m *mockInfraProviderTemplateStore) FindByIdentifier(ctx context.Context, s
 
 func (m *mockInfraProviderTemplateStore) Find(ctx context.Context, id int64) (*types.InfraProviderTemplate, error) {
 	args := m.Called(ctx, id)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
 	return args.Get(0).(*types.InfraProviderTemplate), args.Error(1)
 }
 
-func (m *mockInfraProviderTemplateStore) Create(ctx context.Context, infraProviderTemplate *types.InfraProviderTemplate) error {
+func (m *mockInfraProviderTemplateStore) Create(
+	ctx context.Context,
+	infraProviderTemplate *types.InfraProviderTemplate,
+) error {
 	args := m.Called(ctx, infraProviderTemplate)
 	return args.Error(0)
 }
 
-func (m *mockInfraProviderTemplateStore) Update(ctx context.Context, infraProviderTemplate *types.InfraProviderTemplate) error {
+func (m *mockInfraProviderTemplateStore) Update(
+	ctx context.Context,
+	infraProviderTemplate *types.InfraProviderTemplate,
+) error {
 	args := m.Called(ctx, infraProviderTemplate)
 	return args.Error(0)
 }
@@ -514,15 +634,27 @@ type mockInfraProvisionedStore struct {
 
 func (m *mockInfraProvisionedStore) Find(ctx context.Context, id int64) (*types.InfraProvisioned, error) {
 	args := m.Called(ctx, id)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
 	return args.Get(0).(*types.InfraProvisioned), args.Error(1)
 }
 
-func (m *mockInfraProvisionedStore) FindAllLatestByGateway(ctx context.Context, gatewayHost string) ([]*types.InfraProvisionedGatewayView, error) {
+func (m *mockInfraProvisionedStore) FindAllLatestByGateway(
+	ctx context.Context,
+	gatewayHost string,
+) ([]*types.InfraProvisionedGatewayView, error) {
 	args := m.Called(ctx, gatewayHost)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
 	return args.Get(0).([]*types.InfraProvisionedGatewayView), args.Error(1)
 }
 
-func (m *mockInfraProvisionedStore) FindLatestByGitspaceInstanceID(ctx context.Context, gitspaceInstanceID int64) (*types.InfraProvisioned, error) {
+func (m *mockInfraProvisionedStore) FindLatestByGitspaceInstanceID(
+	ctx context.Context,
+	gitspaceInstanceID int64,
+) (*types.InfraProvisioned, error) {
 	args := m.Called(ctx, gitspaceInstanceID)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -530,12 +662,22 @@ func (m *mockInfraProvisionedStore) FindLatestByGitspaceInstanceID(ctx context.C
 	return args.Get(0).(*types.InfraProvisioned), args.Error(1)
 }
 
-func (m *mockInfraProvisionedStore) FindLatestByGitspaceInstanceIdentifier(ctx context.Context, spaceID int64, gitspaceInstanceIdentifier string) (*types.InfraProvisioned, error) {
+func (m *mockInfraProvisionedStore) FindLatestByGitspaceInstanceIdentifier(
+	ctx context.Context,
+	spaceID int64,
+	gitspaceInstanceIdentifier string,
+) (*types.InfraProvisioned, error) {
 	args := m.Called(ctx, spaceID, gitspaceInstanceIdentifier)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
 	return args.Get(0).(*types.InfraProvisioned), args.Error(1)
 }
 
-func (m *mockInfraProvisionedStore) FindStoppedInfraForGitspaceConfigIdentifier(ctx context.Context, gitspaceConfigIdentifier string) (*types.InfraProvisioned, error) {
+func (m *mockInfraProvisionedStore) FindStoppedInfraForGitspaceConfigIdentifier(
+	ctx context.Context,
+	gitspaceConfigIdentifier string,
+) (*types.InfraProvisioned, error) {
 	args := m.Called(ctx, gitspaceConfigIdentifier)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -562,7 +704,9 @@ type mockProviderFactory struct {
 	mock.Mock
 }
 
-func (m *mockProviderFactory) GetInfraProvider(providerType enum.InfraProviderType) (infraprovider.InfraProvider, error) {
+func (m *mockProviderFactory) GetInfraProvider(
+	providerType enum.InfraProviderType,
+) (infraprovider.InfraProvider, error) {
 	args := m.Called(providerType)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -574,12 +718,34 @@ type mockInfraProvider struct {
 	mock.Mock
 }
 
-func (m *mockInfraProvider) Provision(ctx context.Context, gitspaceConfig types.GitspaceConfig, agentPort int, requiredGitspacePorts []types.GitspacePort, inputParameters []types.InfraProviderParameter, configMetadata map[string]interface{}, existingInfrastructure types.Infrastructure) error {
-	args := m.Called(ctx, gitspaceConfig, agentPort, requiredGitspacePorts, inputParameters, configMetadata, existingInfrastructure)
+func (m *mockInfraProvider) Provision(
+	ctx context.Context,
+	gitspaceConfig types.GitspaceConfig,
+	agentPort int,
+	requiredGitspacePorts []types.GitspacePort,
+	inputParameters []types.InfraProviderParameter,
+	configMetadata map[string]interface{},
+	existingInfrastructure types.Infrastructure,
+) error {
+	args := m.Called(
+		ctx,
+		gitspaceConfig,
+		agentPort,
+		requiredGitspacePorts,
+		inputParameters,
+		configMetadata,
+		existingInfrastructure,
+	)
 	return args.Error(0)
 }
 
-func (m *mockInfraProvider) Find(ctx context.Context, spaceID int64, spacePath string, gitspaceConfigIdentifier string, inputParameters []types.InfraProviderParameter) (*types.Infrastructure, error) {
+func (m *mockInfraProvider) Find(
+	ctx context.Context,
+	spaceID int64,
+	spacePath string,
+	gitspaceConfigIdentifier string,
+	inputParameters []types.InfraProviderParameter,
+) (*types.Infrastructure, error) {
 	args := m.Called(ctx, spaceID, spacePath, gitspaceConfigIdentifier, inputParameters)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -587,7 +753,12 @@ func (m *mockInfraProvider) Find(ctx context.Context, spaceID int64, spacePath s
 	return args.Get(0).(*types.Infrastructure), args.Error(1)
 }
 
-func (m *mockInfraProvider) FindInfraStatus(ctx context.Context, gitspaceConfigIdentifier string, gitspaceInstanceIdentifier string, inputParameters []types.InfraProviderParameter) (*enum.InfraStatus, error) {
+func (m *mockInfraProvider) FindInfraStatus(
+	ctx context.Context,
+	gitspaceConfigIdentifier string,
+	gitspaceInstanceIdentifier string,
+	inputParameters []types.InfraProviderParameter,
+) (*enum.InfraStatus, error) {
 	args := m.Called(ctx, gitspaceConfigIdentifier, gitspaceInstanceIdentifier, inputParameters)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -595,7 +766,12 @@ func (m *mockInfraProvider) FindInfraStatus(ctx context.Context, gitspaceConfigI
 	return args.Get(0).(*enum.InfraStatus), args.Error(1)
 }
 
-func (m *mockInfraProvider) Stop(ctx context.Context, infra types.Infrastructure, gitspaceConfig types.GitspaceConfig, configMetadata map[string]interface{}) error {
+func (m *mockInfraProvider) Stop(
+	ctx context.Context,
+	infra types.Infrastructure,
+	gitspaceConfig types.GitspaceConfig,
+	configMetadata map[string]interface{},
+) error {
 	args := m.Called(ctx, infra, gitspaceConfig, configMetadata)
 	return args.Error(0)
 }
@@ -605,7 +781,14 @@ func (m *mockInfraProvider) CleanupInstanceResources(ctx context.Context, infra 
 	return args.Error(0)
 }
 
-func (m *mockInfraProvider) Deprovision(ctx context.Context, infra types.Infrastructure, gitspaceConfig types.GitspaceConfig, canDeleteUserData bool, configMetadata map[string]interface{}, params []types.InfraProviderParameter) error {
+func (m *mockInfraProvider) Deprovision(
+	ctx context.Context,
+	infra types.Infrastructure,
+	gitspaceConfig types.GitspaceConfig,
+	canDeleteUserData bool,
+	configMetadata map[string]interface{},
+	params []types.InfraProviderParameter,
+) error {
 	args := m.Called(ctx, infra, gitspaceConfig, canDeleteUserData, configMetadata, params)
 	return args.Error(0)
 }
@@ -615,8 +798,14 @@ func (m *mockInfraProvider) AvailableParams() []types.InfraProviderParameterSche
 	return args.Get(0).([]types.InfraProviderParameterSchema)
 }
 
-func (m *mockInfraProvider) UpdateParams(inputParameters []types.InfraProviderParameter, configMetaData map[string]interface{}) ([]types.InfraProviderParameter, error) {
+func (m *mockInfraProvider) UpdateParams(
+	inputParameters []types.InfraProviderParameter,
+	configMetaData map[string]interface{},
+) ([]types.InfraProviderParameter, error) {
 	args := m.Called(inputParameters, configMetaData)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
 	return args.Get(0).([]types.InfraProviderParameter), args.Error(1)
 }
 
@@ -635,8 +824,13 @@ func (m *mockInfraProvider) ProvisioningType() enum.InfraProvisioningType {
 	return args.Get(0).(enum.InfraProvisioningType)
 }
 
-func (m *mockInfraProvider) UpdateConfig(infraProviderConfig *types.InfraProviderConfig) (*types.InfraProviderConfig, error) {
+func (m *mockInfraProvider) UpdateConfig(
+	infraProviderConfig *types.InfraProviderConfig,
+) (*types.InfraProviderConfig, error) {
 	args := m.Called(infraProviderConfig)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
 	return args.Get(0).(*types.InfraProviderConfig), args.Error(1)
 }
 
@@ -670,10 +864,13 @@ func TestInfraProvisioner_GetInfraFromStoredInfo(t *testing.T) {
 			fields: fields{
 				infraProvisionedStore: func() *mockInfraProvisionedStore {
 					store := &mockInfraProvisionedStore{}
-					responseMetadata := `{"status": "running"}`
-					store.On("FindLatestByGitspaceInstanceID", mock.Anything, mock.Anything).Return(&types.InfraProvisioned{
-						ResponseMetadata: &responseMetadata,
-					}, nil)
+					responseMetadata := responseMetadataRunning
+					store.On("FindLatestByGitspaceInstanceID", mock.Anything, mock.Anything).Return(
+						&types.InfraProvisioned{
+							ResponseMetadata: &responseMetadata,
+						},
+						nil,
+					)
 					return store
 				}(),
 			},
@@ -711,9 +908,12 @@ func TestInfraProvisioner_GetInfraFromStoredInfo(t *testing.T) {
 				infraProvisionedStore: func() *mockInfraProvisionedStore {
 					store := &mockInfraProvisionedStore{}
 					responseMetadata := `invalid`
-					store.On("FindLatestByGitspaceInstanceID", mock.Anything, mock.Anything).Return(&types.InfraProvisioned{
-						ResponseMetadata: &responseMetadata,
-					}, nil)
+					store.On("FindLatestByGitspaceInstanceID", mock.Anything, mock.Anything).Return(
+						&types.InfraProvisioned{
+							ResponseMetadata: &responseMetadata,
+						},
+						nil,
+					)
 					return store
 				}(),
 			},
@@ -760,7 +960,7 @@ func TestInfraProvisioner_GetStoppedInfraFromStoredInfo(t *testing.T) {
 
 	// Test case 1: Successfully find and unmarshal infra
 	expectedInfra := types.Infrastructure{}
-	json.Unmarshal([]byte(validInfra), &expectedInfra)
+	_ = json.Unmarshal([]byte(validInfra), &expectedInfra)
 	infra, err := i.GetStoppedInfraFromStoredInfo(context.Background(), types.GitspaceConfig{Identifier: "valid"})
 	assert.NoError(t, err)
 	assert.Equal(t, expectedInfra, infra)
